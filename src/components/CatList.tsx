@@ -5,8 +5,8 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Button from 'react-bootstrap/Button';
 
-import { CATS_API_BASE_URL, getAllBreeds, getCatsOfBreed } from '../api/CatAPI';
-import { Breed, BreedInfo, Cat } from '../models/models'
+import { getAllBreeds, getCatsOfBreed } from '../api/CatAPI';
+import { Breed, Cat } from '../models/models'
 import CatEntry from './CatEntry'
 
 const CatList = () => {
@@ -16,7 +16,6 @@ const CatList = () => {
     const [selectedBreed, setSelectedBreed] = useState('')
     const [listCats, setCats] = useState([] as Cat[])
 
-    const [hasSelectedBreed, setHasSeletedBreed] = useState(false)
     const [page, setPage] = useState(1)
     const [shouldShowLoadMoreButton, setShouldShowLoadMoreButton] = useState(true)
 
