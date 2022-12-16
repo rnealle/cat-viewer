@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom'
 import Card from 'react-bootstrap/Card'
 import Button from 'react-bootstrap/Button'
+import Alert from 'react-bootstrap/Alert'
 
 import { getCatInfo } from '../api/CatAPI';
 import { CatInfo } from '../models/models';
@@ -9,17 +10,28 @@ import { CatInfo } from '../models/models';
 const CatDetailsPage = () => {
     let params = useParams()
     const [catInfo, setCatInfo] = useState({} as CatInfo)
+    const [errorMessage, setErrorMessage] = useState('')
 
     useEffect(() => {
         const getCatInfoFromAPI = async () => {
-            if (params.id) {
-                const result = await getCatInfo(params.id);
-                setCatInfo(result);
+            try {
+                if (params.id) {
+                    const result = await getCatInfo(params.id);
+                    setCatInfo(result);
+                }
+            } catch (e: any) {
+                setErrorMessage('Error (' + e.response.status + '): ' + e.code);
             }
         };
 
         getCatInfoFromAPI();
     }, [params.id])
+
+    const displayError = () => {
+        return (
+            <Alert variant="danger">{errorMessage}</Alert>
+        );
+    }
 
     const displayCatDetails = () => {
         if (catInfo && catInfo.breeds && catInfo.breeds.length) {
@@ -48,6 +60,7 @@ const CatDetailsPage = () => {
 
     return (
         <React.Fragment>
+            { errorMessage && displayError() }
             { displayCatDetails() }
         </React.Fragment>
     );

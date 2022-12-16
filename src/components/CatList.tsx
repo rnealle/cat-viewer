@@ -4,6 +4,7 @@ import Form from 'react-bootstrap/Form';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Button from 'react-bootstrap/Button';
+import Alert from 'react-bootstrap/Alert';
 
 import { getAllBreeds, getCatsOfBreed } from '../api/CatAPI';
 import { Breed, Cat } from '../models/models'
@@ -18,13 +19,19 @@ const CatList = () => {
 
     const [page, setPage] = useState(1)
     const [shouldShowLoadMoreButton, setShouldShowLoadMoreButton] = useState(true)
+    const [errorMessage, setErrorMessage] = useState('')
 
     let [searchParams, setSearchParams] = useSearchParams();
 
     useEffect(() => {
         const getBreedsFromAPI = async () => {
-            const result = await getAllBreeds();
-            setBreeds(result);
+            try {
+                const result = await getAllBreeds();
+                setBreeds(result);
+                setErrorMessage('');
+            } catch (e: any) {
+                setErrorMessage('Error (' + e.response.status + '): ' + e.code);
+            }
         };
 
         getBreedsFromAPI()
@@ -41,11 +48,16 @@ const CatList = () => {
 
     const fetchCatPage = (breed: string, page: number) => {
         const getPage = async () => {
-            const result = await getCatsOfBreed(breed, LIMIT, page);
-            const filteredCats = result.filter((cat: any) => listCats.map(i => i.id).indexOf(cat.id) < 0 );
-            setCats([...listCats, ...filteredCats])
-            setPage(page)
-            !filteredCats.length && setShouldShowLoadMoreButton(false);
+            try {
+                const result = await getCatsOfBreed(breed, LIMIT, page);
+                const filteredCats = result.filter((cat: any) => listCats.map(i => i.id).indexOf(cat.id) < 0 );
+                setCats([...listCats, ...filteredCats])
+                setPage(page)
+                !filteredCats.length && setShouldShowLoadMoreButton(false);
+                setErrorMessage('');
+            } catch (e: any) {
+                setErrorMessage('Error (' + e.response.status + '): ' + e.code);
+            }
         };
 
         getPage()
@@ -60,6 +72,12 @@ const CatList = () => {
 
     const onClickLoadMore = (e: any) => {
         fetchCatPage(selectedBreed, page + 1)
+    }
+
+    const displayError = () => {
+        return (
+            <Alert variant="danger">{errorMessage}</Alert>
+        );
     }
 
     const displayDropdown = () => {
@@ -100,6 +118,7 @@ const CatList = () => {
     return (
         <React.Fragment>
             <h1> Cat Browser </h1>
+            { errorMessage && displayError() }
             { displayDropdown() }
             { displayCats() }
             { shouldShowLoadMoreButton && displayMoreButton() }

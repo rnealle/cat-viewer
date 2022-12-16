@@ -20,4 +20,3 @@ export const getCatInfo = async (breed_id: string) => {
     const result = await axios.get(CATS_API_BASE_URL + '/images/' + breed_id);
     return result.data
 };
-
